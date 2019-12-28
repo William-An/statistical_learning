@@ -11,5 +11,8 @@ Contain various algorithem implemtation for statistical learning
 
 ## TODO
 
-* [ ] Unified test bench set up
-  * [ ] alogrithms are self contained in a single function call `model`
+* [x] Unified test bench set up
+  * [x] alogrithms are self contained in a single function call `model`
+* [ ] Multiple Perceptron classifier
+* [ ] KNN Improve on MNIST
+  * [ ] New KNN search algorithm

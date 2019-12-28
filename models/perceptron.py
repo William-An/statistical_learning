@@ -3,7 +3,9 @@ from tqdm import tqdm, trange
 from utility import *
 
 class perceptron(model_abs):
-
+    """
+    Basic Perceptron Implementation
+    """
     def __init__(self, single_sample_data, target_label = 1, lr = 0.005):
         super().__init__()
         self.learning_rate = lr
@@ -16,39 +18,30 @@ class perceptron(model_abs):
     def config(self, lr):
         self.learning_rate = lr
     
-    def train(self, data, label):
+    def train(self, train_data, train_label, print_loss=True, loss_step=100):
         # Rectify label
-        label = 1 if label == self.target_label else -1
+        train_label = self.label_rectifier(train_label)
 
-        res = np.matmul(self.weight, data.T) + self.bias
-        prediction = np.sign(res)
+        for i in trange(np.size(train_data, 0), desc = "Steps"):
+            data = train_data[i]
+            label = train_label[i]
+            res = np.matmul(self.weight, data.T) + self.bias
+            prediction = np.sign(res)
 
-        # Whether misclassified
-        if prediction * label <= 0:
-            loss = -label * res
-            self.loss_vec = np.append(self.loss_vec, loss)
-
-            # Update via gradient
-            self.weight = self.weight + self.learning_rate * label * data
-            self.bias = self.bias + self.learning_rate * label
-        else:
-            self.loss_vec = np.append(self.loss_vec, 0)
-
-    def evaluate(self, test_data, test_label):
-        size = test_data.shape[0]
-        incorrect = 0
-        test_label = self.label_rectifier(test_label)
-
-        # TODO Rewrite in matrix / vector ops
-        for i in tqdm(range(size)):
-            prediction = self.predict(test_data[i, :])
-
-            # Correct target label
-            label = test_label[i]
+            # Whether misclassified
             if prediction * label <= 0:
-                incorrect += 1
-        correct = size - incorrect
-        print("\nAccuracy: {:.2f}%\tCorrect: {}\tIncorrect: {}".format((correct / size) * 100, correct, incorrect))
+                loss = -label * res
+                self.loss_vec = np.append(self.loss_vec, loss)
+
+                # Update via gradient
+                self.weight = self.weight + self.learning_rate * label * data
+                self.bias = self.bias + self.learning_rate * label
+            else:
+                self.loss_vec = np.append(self.loss_vec, 0)
+            
+            if print_loss and i % loss_step == 0:
+                # Print loss
+                print("Loss: {}\tStep: {}".format(self.get_loss(), i))
 
     def predict(self, data):
         return np.sign(np.matmul(self.weight, data.T) + self.bias)
